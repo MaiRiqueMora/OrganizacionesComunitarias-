@@ -1,0 +1,81 @@
+# Sistema Municipal - .gitignore
+
+# Variables de entorno
+.env
+.env.local
+.env.production
+.env.staging
+
+# Base de datos
+database/*.sqlite
+database/*.db
+database/*.sqlite3
+
+# Logs
+logs/
+*.log
+
+# Backups
+backups/
+*.backup
+*.bak
+
+# Archivos subidos
+uploads/*
+!uploads/.htaccess
+
+# Archivos temporales
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Cache
+cache/
+*.cache
+
+# Archivos de configuración sensibles
+config/local.php
+config/production.php
+
+# IDE y editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Sistema operativo
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# PHP
+vendor/
+composer.lock
+.phpunit.result.cache
+
+# Node.js (si se usa)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Reportes y exportaciones
+reports/
+exports/
+*.csv
+*.xlsx
+*.xls
+
+# Documentación temporal
+docs/temp/
+docs/draft/
+
+# Archivos de prueba
+test_*.php
+tests/

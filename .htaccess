@@ -1,0 +1,117 @@
+# Configuración de Apache para Sistema Municipal
+
+# Establecer index.php como archivo por defecto
+DirectoryIndex index.php index.html
+
+# Redirigir todas las solicitudes a index.php si no existe el archivo/directorio
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Si la solicitud no es para un archivo existente
+    RewriteCond %{REQUEST_FILENAME} !-f
+    # Si la solicitud no es para un directorio existente
+    RewriteCond %{REQUEST_FILENAME} !-d
+    # Redirigir a index.php
+    RewriteRule ^(.*)$ index.php [L]
+</IfModule>
+
+# Seguridad - Prevenir acceso a archivos sensibles
+<Files ~ "^\.">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Bloquear acceso a .env específicamente
+<Files ".env">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files ".env.*">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<FilesMatch "^(config|scripts|logs|database|backups|test_|diagnose_|init_|migrate_)">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Bloquear acceso a archivos PHP sensibles
+<FilesMatch "^test_.*\.php$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+<FilesMatch "^diagnose_.*\.php$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+<FilesMatch "^init_.*\.php$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+<FilesMatch "^migrate_.*\.php$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Prevenir listado de directorios
+Options -Indexes
+
+# Configuración de caché para archivos estáticos
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/jpg "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/gif "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 month"
+</IfModule>
+
+# Compresión gzip
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+</IfModule>
+
+# Headers de seguridad
+<IfModule mod_headers.c>
+    # Prevenir clickjacking
+    Header always set X-Frame-Options "SAMEORIGIN"
+    
+    # Prevenir MIME-type sniffing
+    Header always set X-Content-Type-Options "nosniff"
+    
+    # XSS Protection
+    Header always set X-XSS-Protection "1; mode=block"
+    
+    # Forzar HTTPS en producción (comentar en desarrollo)
+    # Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+</IfModule>
+
+# Configuración de PHP (si aplica)
+<IfModule mod_php7.c>
+    php_flag display_errors Off
+    php_value upload_max_filesize 10M
+    php_value post_max_size 10M
+    php_value memory_limit 128M
+</IfModule>
+
+<IfModule mod_php8.c>
+    php_flag display_errors Off
+    php_value upload_max_filesize 10M
+    php_value post_max_size 10M
+    php_value memory_limit 128M
+</IfModule>
