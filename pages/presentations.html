@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Presentaciones - Municipalidad de Pucón</title>
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .presentation-header {
+            background: linear-gradient(135deg, var(--navy2), var(--navy3));
+            padding: 40px 0;
+            text-align: center;
+            border-bottom: 3px solid var(--gold);
+        }
+        
+        .presentation-title {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            color: var(--gold);
+            margin-bottom: 10px;
+        }
+        
+        .presentation-subtitle {
+            font-size: 1.2rem;
+            color: var(--cream);
+            opacity: 0.9;
+        }
+        
+        .presentation-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-md);
+            padding: 25px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .stat-icon {
+            font-size: 2.5rem;
+            color: var(--gold);
+            margin-bottom: 15px;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--cream);
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 1rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .chart-section {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius-md);
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .chart-title {
+            font-size: 1.5rem;
+            color: var(--cream);
+            font-weight: 600;
+        }
+        
+        .chart-controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .chart-btn {
+            padding: 8px 16px;
+            background: rgba(201, 168, 76, 0.2);
+            border: 1px solid var(--gold);
+            border-radius: var(--radius-sm);
+            color: var(--gold);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .chart-btn:hover, .chart-btn.active {
+            background: var(--gold);
+            color: var(--navy);
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 20px;
+        }
+        
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .performance-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-md);
+            padding: 25px;
+        }
+        
+        .performance-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .performance-title {
+            font-size: 1.1rem;
+            color: var(--cream);
+            font-weight: 600;
+        }
+        
+        .performance-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .performance-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .performance-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+        
+        .performance-fill.good { background: var(--success); }
+        .performance-fill.warning { background: var(--warning); }
+        .performance-fill.critical { background: var(--danger); }
+        
+        .performance-target {
+            font-size: 0.9rem;
+            color: var(--muted);
+        }
+        
+        .export-section {
+            text-align: center;
+            padding: 40px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .export-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .export-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, var(--gold), #a8852e);
+            border: none;
+            border-radius: var(--radius-sm);
+            color: var(--navy);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+        
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(201, 168, 76, 0.4);
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            color: var(--muted);
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(201, 168, 76, 0.2);
+            border-top: 4px solid var(--gold);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .presentation-title {
+                font-size: 2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .performance-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+            
+            .export-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg"></div>
+    
+    <header class="presentation-header">
+        <div class="container">
+            <h1 class="presentation-title">Panel de Presentaciones</h1>
+            <p class="presentation-subtitle">Municipalidad de Pucón - Informe Ejecutivo y Análisis Estratégico</p>
+        </div>
+    </header>
+    
+    <div class="presentation-container">
+        <!-- Estadísticas Principales -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="loading">
+                <div class="spinner"></div>
+                <span>Cargando estadísticas...</span>
+            </div>
+        </div>
+        
+        <!-- Gráfico de Crecimiento de Organizaciones -->
+        <div class="chart-section">
+            <div class="chart-header">
+                <h2 class="chart-title">📈 Crecimiento de Organizaciones</h2>
+                <div class="chart-controls">
+                    <button class="chart-btn active" data-period="month">Mensual</button>
+                    <button class="chart-btn" data-period="week">Semanal</button>
+                    <button class="chart-btn" data-period="year">Anual</button>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="organizationsChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Distribución por Tipos -->
+        <div class="chart-section">
+            <div class="chart-header">
+                <h2 class="chart-title">🏢 Distribución por Tipos de Organización</h2>
+            </div>
+            <div class="chart-container">
+                <canvas id="typesChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Indicadores de Desempeño Municipal -->
+        <div class="performance-grid" id="performanceGrid">
+            <div class="loading">
+                <div class="spinner"></div>
+                <span>Cargando indicadores...</span>
+            </div>
+        </div>
+        
+        <!-- Actividad de Usuarios -->
+        <div class="chart-section">
+            <div class="chart-header">
+                <h2 class="chart-title">👥 Actividad de Usuarios</h2>
+                <div class="chart-controls">
+                    <button class="chart-btn active" data-days="30">30 días</button>
+                    <button class="chart-btn" data-days="7">7 días</button>
+                    <button class="chart-btn" data-days="90">90 días</button>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="activityChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Exportación -->
+        <div class="export-section">
+            <h2 style="color: var(--cream); margin-bottom: 20px;">📊 Exportar Presentación</h2>
+            <div class="export-buttons">
+                <button class="export-btn" onclick="exportPDF()">
+                    <i class="fas fa-file-pdf"></i>
+                    Exportar PDF
+                </button>
+                <button class="export-btn" onclick="exportExcel()">
+                    <i class="fas fa-file-excel"></i>
+                    Exportar Excel
+                </button>
+                <button class="export-btn" onclick="exportPowerPoint()">
+                    <i class="fas fa-file-powerpoint"></i>
+                    Exportar PowerPoint
+                </button>
+                <button class="export-btn" onclick="printPresentation()">
+                    <i class="fas fa-print"></i>
+                    Imprimir
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="../js/auth.js"></script>
+    <script>
+        let charts = {};
+        
+        // Inicializar presentación
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!await sessionExists()) {
+                window.location.href = '../index.php';
+                return;
+            }
+            
+            await loadDashboardStats();
+            await loadPerformanceIndicators();
+            await loadOrganizationsChart('month');
+            await loadTypesDistribution();
+            await loadUserActivity(30);
+            
+            setupEventListeners();
+        });
+        
+        // Configurar event listeners
+        function setupEventListeners() {
+            // Controles de período del gráfico de organizaciones
+            document.querySelectorAll('[data-period]').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    document.querySelectorAll('[data-period]').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    await loadOrganizationsChart(e.target.dataset.period);
+                });
+            });
+            
+            // Controles de período de actividad
+            document.querySelectorAll('[data-days]').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    document.querySelectorAll('[data-days]').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    await loadUserActivity(parseInt(e.target.dataset.days));
+                });
+            });
+        }
+        
+        // Cargar estadísticas principales
+        async function loadDashboardStats() {
+            try {
+                const response = await fetch('../api/presentations.php?action=dashboard_stats');
+                const data = await response.json();
+                
+                const statsGrid = document.getElementById('statsGrid');
+                statsGrid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-icon">🏢</div>
+                        <div class="stat-value">${data.total_organizations}</div>
+                        <div class="stat-label">Total Organizaciones</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-value">${data.active_organizations}</div>
+                        <div class="stat-label">Organizaciones Activas</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-value">${data.total_users}</div>
+                        <div class="stat-label">Total Usuarios</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-value">${data.total_documents}</div>
+                        <div class="stat-label">Total Documentos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📈</div>
+                        <div class="stat-value">${data.monthly_documents}</div>
+                        <div class="stat-label">Documentos del Mes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🔥</div>
+                        <div class="stat-value">${data.active_users}</div>
+                        <div class="stat-label">Usuarios Activos (30d)</div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error cargando estadísticas:', error);
+            }
+        }
+        
+        // Cargar gráfico de organizaciones
+        async function loadOrganizationsChart(period) {
+            try {
+                const response = await fetch(`../api/presentations.php?action=organizations_chart&period=${period}`);
+                const data = await response.json();
+                
+                const ctx = document.getElementById('organizationsChart').getContext('2d');
+                
+                if (charts.organizations) {
+                    charts.organizations.destroy();
+                }
+                
+                charts.organizations = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.map(item => item.label),
+                        datasets: [{
+                            label: 'Nuevas Organizaciones',
+                            data: data.map(item => item.value),
+                            borderColor: '#c9a84c',
+                            backgroundColor: 'rgba(201, 168, 76, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: { color: '#f5f0e8' }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                                ticks: { color: '#f5f0e8' }
+                            },
+                            y: {
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                                ticks: { color: '#f5f0e8' }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error cargando gráfico de organizaciones:', error);
+            }
+        }
+        
+        // Cargar distribución por tipos
+        async function loadTypesDistribution() {
+            try {
+                const response = await fetch('../api/presentations.php?action=types_distribution');
+                const data = await response.json();
+                
+                const ctx = document.getElementById('typesChart').getContext('2d');
+                
+                charts.types = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.map(item => item.tipo),
+                        datasets: [{
+                            data: data.map(item => item.count),
+                            backgroundColor: [
+                                '#c9a84c', '#27ae60', '#3498db', '#e74c3c',
+                                '#f39c12', '#9b59b6', '#1abc9c', '#34495e'
+                            ],
+                            borderWidth: 2,
+                            borderColor: '#0d1b2a'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: { color: '#f5f0e8' }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error cargando distribución por tipos:', error);
+            }
+        }
+        
+        // Cargar actividad de usuarios
+        async function loadUserActivity(days) {
+            try {
+                const response = await fetch(`../api/presentations.php?action=users_activity&days=${days}`);
+                const data = await response.json();
+                
+                const ctx = document.getElementById('activityChart').getContext('2d');
+                
+                if (charts.activity) {
+                    charts.activity.destroy();
+                }
+                
+                charts.activity = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.daily_logins.map(item => item.date),
+                        datasets: [{
+                            label: 'Inicios de Sesión',
+                            data: data.daily_logins.map(item => item.logins),
+                            backgroundColor: 'rgba(201, 168, 76, 0.8)',
+                            borderColor: '#c9a84c',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: { color: '#f5f0e8' }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                                ticks: { color: '#f5f0e8' }
+                            },
+                            y: {
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                                ticks: { color: '#f5f0e8' }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error cargando actividad de usuarios:', error);
+            }
+        }
+        
+        // Cargar indicadores de desempeño
+        async function loadPerformanceIndicators() {
+            try {
+                const response = await fetch('../api/presentations.php?action=municipal_performance');
+                const data = await response.json();
+                
+                const performanceGrid = document.getElementById('performanceGrid');
+                performanceGrid.innerHTML = Object.entries(data).map(([key, indicator]) => `
+                    <div class="performance-card">
+                        <div class="performance-header">
+                            <div class="performance-title">${getIndicatorTitle(key)}</div>
+                            <div class="performance-value" style="color: ${getIndicatorColor(indicator.status)}">
+                                ${indicator.value}${indicator.unit}
+                            </div>
+                        </div>
+                        <div class="performance-bar">
+                            <div class="performance-fill ${indicator.status}" style="width: ${Math.min(indicator.value / indicator.target * 100, 100)}%"></div>
+                        </div>
+                        <div class="performance-target">Meta: ${indicator.target}${indicator.unit}</div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error cargando indicadores:', error);
+            }
+        }
+        
+        // Funciones auxiliares
+        function getIndicatorTitle(key) {
+            const titles = {
+                'avg_response_time': 'Tiempo Promedio de Respuesta',
+                'digitalization_rate': 'Tasa de Digitalización',
+                'user_satisfaction': 'Satisfacción de Usuarios',
+                'process_efficiency': 'Eficiencia de Procesos'
+            };
+            return titles[key] || key;
+        }
+        
+        function getIndicatorColor(status) {
+            const colors = {
+                'good': '#27ae60',
+                'warning': '#f39c12',
+                'critical': '#e74c3c'
+            };
+            return colors[status] || '#8a9ab0';
+        }
+        
+        // Funciones de exportación
+        function exportPDF() {
+            window.print();
+        }
+        
+        function exportExcel() {
+            // Implementar exportación a Excel
+            alert('Función de exportación a Excel en desarrollo');
+        }
+        
+        function exportPowerPoint() {
+            // Implementar exportación a PowerPoint
+            alert('Función de exportación a PowerPoint en desarrollo');
+        }
+        
+        function printPresentation() {
+            window.print();
+        }
+    </script>
+</body>
+</html>
