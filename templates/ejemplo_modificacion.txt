@@ -1,0 +1,30 @@
+EJEMPLO DE CÓMO DEBERÍA QUEDAR LA PLANTILLA modificacion.docx
+
+===========================================================
+
+MUNICIPALIDAD DE PUCÓN
+SECRETARIA MUNICIPAL
+
+CERTIFICADO N° {{numero_cert}} .
+
+{{nombre_firmante}}, {{cargo_firmante}} de la municipalidad de Pucón que suscribe, certifica que:
+
+La Organización comunitaria denominada "{{nombre_org}}" de carácter funcional, registrada en este municipio bajo N° 390, ha hecho el depósito del acta extraordinaria de fecha {{fecha_deposito}}, de Modificación de Estatutos, de acuerdo a las disposiciones de la Ley N° 19.418.
+
+   Revisada la documentación precedente, y en mérito de lo obrado el suscrito a través de esta determinación con fecha {{fecha_determinacion}}, aprueba la modificación estatutaria del {{nombre_org}}.
+
+    Se autoriza a la Srta. Delia Cifuentes Huaiquifil, funcionaria municipal, Encargada de Organizaciones Comunitarias, domiciliada para estos efectos en calle O'Higgins 483 de la Ciudad de Pucón, para que realice el ingreso de la documentación, al Registro Nacional de Personas Jurídicas.
+
+                                        
+
+       Dado en Pucón a  {{fecha_emision}}   .
+
+VRR/dch.
+
+===========================================================
+
+INSTRUCCIONES:
+1. Abre modificacion.docx en Microsoft Word
+2. Busca el texto similar y reemplázalo con los placeholders {{...}}
+3. Mantén el formato original (fuentes, márgenes, etc.)
+4. Guarda el archivo

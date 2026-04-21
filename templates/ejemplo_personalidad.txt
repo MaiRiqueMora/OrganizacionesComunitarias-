@@ -1,0 +1,31 @@
+EJEMPLO DE CÓMO DEBERÍA QUEDAR LA PLANTILLA personalidad.docx
+
+===========================================================
+
+MUNICIPALIDAD DE PUCÓN
+DIREC. DESAR COMUNITARIO
+
+                              C E R T I F I C A D O  N° {{numero_cert}}.-
+
+                              {{nombre_firmante}}, {{cargo_firmante}} de la  Municipalidad de Pucón, que suscribe, certifica que la Organización denominada "{{nombre_org}}", ha sido inscrita en el Registro Nacional de Personas Jurídicas bajo el Nº 988, con fecha {{fecha_inscripcion}}, según consta en Asamblea Constituyente realizada el día {{fecha_asamblea}} a las {{hora_asamblea}} hrs., en {{direccion_asamblea}} de esta ciudad, conforme a lo dispuesto en la Ley Nº 19.418, Decreto Exento Nº 249 de fecha {{fecha_decreto_fe}}, del Ministerio Secretaría General de Gobierno.
+
+Directiva Provisoria vigente hasta {{fecha_vigencia_dir}}:
+
+{{presidenta_texto}}
+{{secretaria_texto}}
+{{tesorera_texto}}
+
+Se autoriza a {{nombre_deposito}}, RUT. {{rut_deposito}}, para que realice trámites de inscripción y obtención de personería jurídica ante el Servicio de Registro Civil e Identificación.
+
+Dado en {{comuna_deposito}}, a 04 de noviembre del año dos mil veinticinco.
+
+GMP/dch.-
+
+===========================================================
+
+INSTRUCCIONES:
+1. Abre personalidad.docx en Microsoft Word
+2. Reemplaza el texto dinámico con los placeholders {{...}}
+3. Para los cargos, usa los placeholders *_texto que incluyen nombre y RUT
+4. Mantén el formato original
+5. Guarda el archivo

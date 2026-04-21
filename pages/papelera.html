@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Papelera - Sistema Municipal</title>
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <style>
+        .papelera-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .filter-tab {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .filter-tab.active {
+            border-bottom-color: #3498db;
+            color: #3498db;
+        }
+        
+        .items-table {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .items-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .items-table th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        .items-table td {
+            padding: 15px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .items-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .item-type {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        
+        .type-organizacion {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .type-directiva {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+        
+        .type-proyecto {
+            background: #e8f5e8;
+            color: #388e3c;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-restore {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        
+        .btn-restore:hover {
+            background: #219653;
+        }
+        
+        .btn-delete-permanent {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        
+        .btn-delete-permanent:hover {
+            background: #c0392b;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .empty-icon {
+            font-size: 3em;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .modal h3 {
+            margin-top: 0;
+            color: #e74c3c;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: flex-end;
+        }
+        
+        .modal-buttons button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .btn-cancel {
+            background: #ecf0f1;
+            color: #333;
+        }
+        
+        .btn-confirm {
+            background: #e74c3c;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="papelera-container">
+        <h1> Papelera</h1>
+        <p>Elementos eliminados que pueden ser restaurados o eliminados permanentemente.</p>
+        
+        <!-- Estadísticas -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="stat-organizaciones">0</div>
+                <div class="stat-label">Organizaciones</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="stat-directivas">0</div>
+                <div class="stat-label">Directivas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="stat-proyectos">0</div>
+                <div class="stat-label">Proyectos/Subvenciones</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="stat-total">0</div>
+                <div class="stat-label">Total</div>
+            </div>
+        </div>
+        
+        <!-- Filtros -->
+        <div class="filter-tabs">
+            <button class="filter-tab active" data-tipo="todos">Todos</button>
+            <button class="filter-tab" data-tipo="organizaciones">Organizaciones</button>
+            <button class="filter-tab" data-tipo="directivas">Directivas</button>
+            <button class="filter-tab" data-tipo="proyectos">Proyectos</button>
+        </div>
+        
+        <!-- Tabla de elementos -->
+        <div class="items-table">
+            <div class="loading" id="loading">
+                <div>Cargando elementos eliminados...</div>
+            </div>
+            
+            <table id="items-table" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Nombre</th>
+                        <th>Organización</th>
+                        <th>Fecha de eliminación</th>
+                        <th>Eliminado por</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="items-tbody">
+                </tbody>
+            </table>
+            
+            <div class="empty-state" id="empty-state" style="display: none;">
+                <div class="empty-icon"> deleted</div>
+                <h3>No hay elementos en la papelera</h3>
+                <p>No se encontraron elementos eliminados para el filtro seleccionado.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de confirmación -->
+    <div class="modal" id="confirm-modal">
+        <div class="modal-content">
+            <h3>Confirmar eliminación permanente</h3>
+            <p>Esta acción eliminará permanentemente el elemento y no podrá ser recuperado. ¿Está seguro?</p>
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+                <button class="btn-confirm" id="confirm-delete">Eliminar permanentemente</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="../js/auth.js"></script>
+    <script src="../js/app.js"></script>
+    <script>
+        let currentFilter = 'todos';
+        let itemsData = {};
+        
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Verificar autenticación
+            if (!await sessionExists()) {
+                window.location.href = '../index.html';
+                return;
+            }
+            
+            initializePapelera();
+        });
+        
+        function initializePapelera() {
+            // Inicializar estructura de papelera
+            fetch('../api/papelera.php?action=init')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Estructura de papelera:', data);
+                    loadStats();
+                    loadItems();
+                })
+                .catch(error => {
+                    console.error('Error inicializando papelera:', error);
+                    loadStats();
+                    loadItems();
+                });
+            
+            // Event listeners
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFilter = this.dataset.tipo;
+                    loadItems();
+                });
+            });
+        }
+        
+        function loadStats() {
+            fetch('../api/papelera.php?action=stats', {
+                credentials: 'include'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ok) {
+                        document.getElementById('stat-organizaciones').textContent = data.data.organizaciones;
+                        document.getElementById('stat-directivas').textContent = data.data.directivas;
+                        document.getElementById('stat-proyectos').textContent = data.data.proyectos;
+                        document.getElementById('stat-total').textContent = 
+                            data.data.organizaciones + data.data.directivas + data.data.proyectos;
+                    }
+                })
+                .catch(error => console.error('Error cargando estadísticas:', error));
+        }
+        
+        function loadItems() {
+            console.log('loadItems() llamado con currentFilter:', currentFilter);
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('items-table').style.display = 'none';
+            document.getElementById('empty-state').style.display = 'none';
+            
+            const url = `../api/papelera.php?action=list&tipo=${currentFilter}`;
+            console.log('URL de petición:', url);
+            
+            fetch(url, {
+                credentials: 'include'
+            })
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Datos recibidos:', data);
+                    if (data.ok) {
+                        console.log('ItemsData antes:', itemsData);
+                        itemsData = data.data;
+                        console.log('ItemsData después:', itemsData);
+                        console.log('Proyectos encontrados:', itemsData.proyectos ? itemsData.proyectos.length : 0);
+                        console.log('Organizaciones encontradas:', itemsData.organizaciones ? itemsData.organizaciones.length : 0);
+                        console.log('Directivas encontradas:', itemsData.directivas ? itemsData.directivas.length : 0);
+                        renderItems();
+                    } else {
+                        console.error('Error en API:', data.error);
+                        showError('Error cargando elementos: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error en fetch:', error);
+                    showError('Error de conexión al cargar elementos');
+                });
+        }
+        
+        function renderItems() {
+            const tbody = document.getElementById('items-tbody');
+            tbody.innerHTML = '';
+            
+            let allItems = [];
+            
+            // Combinar todos los tipos de elementos
+            if (currentFilter === 'todos' || currentFilter === 'organizaciones') {
+                itemsData.organizaciones.forEach(item => {
+                    allItems.push({...item, tipo: 'organizacion', tipo_nombre: 'Organización'});
+                });
+            }
+            if (currentFilter === 'todos' || currentFilter === 'directivas') {
+                itemsData.directivas.forEach(item => {
+                    allItems.push({...item, tipo: 'directiva', tipo_nombre: 'Directiva'});
+                });
+            }
+            if (currentFilter === 'todos' || currentFilter === 'proyectos') {
+                itemsData.proyectos.forEach(item => {
+                    allItems.push({...item, tipo: 'proyecto', tipo_nombre: 'Proyecto'});
+                });
+            }
+            
+            if (allItems.length === 0) {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('empty-state').style.display = 'block';
+                return;
+            }
+            
+            // Ordenar por fecha de eliminación (más reciente primero)
+            allItems.sort((a, b) => new Date(b.fecha_eliminacion) - new Date(a.fecha_eliminacion));
+            
+            allItems.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><span class="item-type type-${item.tipo}">${item.tipo_nombre}</span></td>
+                    <td>${item.nombre || item.descripcion || 'N/A'}</td>
+                    <td>${item.organizacion_nombre || item.tipo_nombre || 'N/A'}</td>
+                    <td>${formatDate(item.fecha_eliminacion)}</td>
+                    <td>${item.eliminado_por_nombre || 'N/A'}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-restore" onclick="restoreItem('${item.tipo}', ${item.id})">
+                                Restaurar
+                            </button>
+                            <button class="btn-delete-permanent" onclick="confirmDelete('${item.tipo}', ${item.id})">
+                                Eliminar permanentemente
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('items-table').style.display = 'table';
+        }
+        
+        function restoreItem(tipo, id) {
+            if (!confirm('¿Está seguro que desea restaurar este elemento?')) {
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('tipo', tipo);
+            formData.append('id', id);
+            
+            fetch('../api/papelera.php', {
+                method: 'POST',
+                body: formData,
+                credentials: 'include'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    showSuccess('Elemento restaurado correctamente');
+                    loadStats();
+                    loadItems();
+                    
+                    // Notificar al dashboard principal para actualizar listas
+                    // Método 1: Intentar localStorage (puede fallar con Tracking Prevention)
+                    try {
+                        localStorage.setItem('papelera_restore', JSON.stringify({
+                            tipo: tipo,
+                            id: id,
+                            timestamp: Date.now()
+                        }));
+                    } catch (e) {
+                        console.log('LocalStorage bloqueado, usando método alternativo');
+                    }
+                    
+                    // Método 2: Disparar evento personalizado
+                    window.dispatchEvent(new CustomEvent('papeleraRestore', {
+                        detail: { tipo: tipo, id: id }
+                    }));
+                    
+                    // Método 3: Intentar comunicación con ventana padre
+                    try {
+                        if (window.parent && window.parent !== window) {
+                            window.parent.postMessage({
+                                type: 'papelera_restore',
+                                data: { tipo: tipo, id: id }
+                            }, '*');
+                        }
+                    } catch (e) {
+                        console.log('Comunicación con ventana padre bloqueada');
+                    }
+                } else {
+                    showError('Error restaurando elemento: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error restaurando elemento:', error);
+                showError('Error de conexión al restaurar elemento');
+            });
+        }
+        
+        let deleteItemType, deleteItemId;
+        
+        function confirmDelete(tipo, id) {
+            deleteItemType = tipo;
+            deleteItemId = id;
+            document.getElementById('confirm-modal').style.display = 'block';
+        }
+        
+        function closeModal() {
+            document.getElementById('confirm-modal').style.display = 'none';
+        }
+        
+        document.getElementById('confirm-delete').addEventListener('click', function() {
+            const formData = new FormData();
+            formData.append('action', 'eliminar_permanente');
+            formData.append('tipo', deleteItemType);
+            formData.append('id', deleteItemId);
+            
+            fetch('../api/papelera.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    showSuccess('Elemento eliminado permanentemente');
+                    closeModal();
+                    loadStats();
+                    loadItems();
+                } else {
+                    showError('Error eliminando elemento: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error eliminando elemento:', error);
+                showError('Error de conexión al eliminar elemento');
+            });
+        });
+        
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleString('es-CL', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        
+        function showSuccess(message) {
+            // Implementar notificación de éxito
+            console.log('Success:', message);
+            // Aquí podrías usar una librería de notificaciones o implementar una simple
+            alert(message);
+        }
+        
+        function showError(message) {
+            // Implementar notificación de error
+            console.error('Error:', message);
+            // Aquí podrías usar una librería de notificaciones o implementar una simple
+            alert(message);
+        }
+        
+        // Cerrar modal al hacer clic fuera
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('confirm-modal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

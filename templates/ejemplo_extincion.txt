@@ -1,0 +1,24 @@
+EJEMPLO DE CÓMO DEBERÍA QUEDAR LA PLANTILLA extincion.docx
+
+===========================================================
+
+MUNICIPALIDAD DE PUCÓN
+DIREC. DESAR COMUNITARIO
+
+CERTIFICADO N° {{numero_cert}}.-
+
+{{nombre_firmante}}, {{cargo_firmante}} de la Municipalidad de Pucón, que suscribe, certifica que la organización comunitaria denominada "{{nombre_org}}", bajo Decreto Exento N° 1716 de fecha {{fecha_decreto}}, se Extigue la Personalidad Jurídica de dicha organización, por constituirse como Asociación Gremial.
+
+Se autoriza a doña Delia Cifuentes Huaiquifil, Encargada de Organizaciones Comunitarias, domiciliada para estos efectos en Avenida O'Higgins 483 de la Ciudad de Pucón, para que ingrese los antecedentes, en la plataforma de Personas Jurídicas del Registro Civil, conforme a lo establecido en el Art., 6° BIS de la Ley N° 19.418.
+
+Dado en Pucón, a {{fecha_emision}}.
+
+GMP//dch.-
+
+===========================================================
+
+INSTRUCCIONES:
+1. Abre extincion.docx en Microsoft Word
+2. Reemplaza el texto dinámico con los placeholders {{...}}
+3. Mantén el formato original
+4. Guarda el archivo
